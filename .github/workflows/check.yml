@@ -1,14 +1,15 @@
 # Put this file at .github/workflows/check.yml in your repo.
-# Each run (scheduled, or started with Run workflow) checks Apple once a minute
-# for ~5 hours 40 minutes. GitHub tries to start a
-# run every 5 minutes; if one is already going, the next waits and takes over
-# as soon as it ends, so checking continues even when GitHub skips schedules.
+# Each run checks Apple about once a minute for up to ~5h40m. When a run ends
+# (time limit, or Apple keeps blocking that server), it starts the next run
+# itself, which usually lands on a different server. The schedule below is
+# just a backup in case the chain ever breaks.
+# To STOP everything: Actions → Duo stock check → ⋯ → Disable workflow.
 # Keep the repo PUBLIC: public repos get unlimited free Actions minutes.
 name: Duo stock check
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "17 * * * *"     # backup: once an hour
   workflow_dispatch:
     inputs:
       test_alert:
@@ -21,6 +22,10 @@ on:
 concurrency:
   group: ${{ inputs.test_alert && 'duo-test-alert' || 'duo-stock-check' }}
   cancel-in-progress: false
+
+permissions:
+  contents: read
+  actions: write   # lets a finished run start the next one
 
 jobs:
   check:
@@ -42,11 +47,12 @@ jobs:
           python-version: "3.12"
       - run: pip install curl_cffi
 
-      - name: Check Apple Store pickup (every minute for ~5h40m)
+      - name: Check Apple Store pickup (about every minute, up to ~5h40m)
         if: ${{ !inputs.test_alert }}
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           STOP_AFTER_MINUTES: "340"
+          MAX_BLOCKED_IN_ROW: "3"
         run: python3 duo_tracker.py check 100000 60
 
       - name: Test in-stock alert (real check, pretends first store has stock)
@@ -55,3 +61,10 @@ jobs:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           FAKE_IN_STOCK: "1"
         run: python3 duo_tracker.py check
+
+      # Start the next run. Skipped if you cancel the run yourself.
+      - name: Start next run
+        if: ${{ !cancelled() && !inputs.test_alert }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run check.yml --ref "${{ github.ref_name }}"
