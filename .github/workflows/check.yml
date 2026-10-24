@@ -1,0 +1,31 @@
+# Put this file at .github/workflows/check.yml in your repo.
+# Runs the tracker free on GitHub every ~5 minutes — no computer needed.
+name: Duo stock check
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"   # GitHub may delay runs a few minutes at busy times
+  workflow_dispatch: {}      # lets you tap "Run workflow" manually
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Remember what was already in stock so you don't get re-alerted every run.
+      - uses: actions/cache@v4
+        with:
+          path: .tracker_state.json
+          key: tracker-state-${{ github.run_id }}
+          restore-keys: tracker-state-
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install curl_cffi
+
+      - name: Check Apple Store pickup
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+        run: python3 duo_tracker.py check
