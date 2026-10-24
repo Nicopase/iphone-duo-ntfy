@@ -4,7 +4,7 @@
   "interval_seconds": 120,
 
   "notify": {
-    "ntfy_topic": "CHANGE-ME-to-your-ntfy-topic",
+    "ntfy_topic": "duo-tracking-k79|d0x93q",
     "desktop": true
   },
 
