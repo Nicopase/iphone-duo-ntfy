@@ -15,3 +15,5 @@ jobs:
           python-version: "3.12"
       - run: pip install curl_cffi
       - run: python3 duo_tracker.py test-alert
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
