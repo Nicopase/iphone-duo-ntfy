@@ -1,0 +1,17 @@
+# Put this at .github/workflows/test-alert.yml
+# Actions → "Send test alert" → Run workflow. Your phone should buzz.
+name: Send test alert
+
+on:
+  workflow_dispatch: {}
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install curl_cffi
+      - run: python3 duo_tracker.py test-alert
