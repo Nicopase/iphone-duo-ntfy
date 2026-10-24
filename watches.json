@@ -1,0 +1,35 @@
+{
+  "country": "us",
+  "product_slug": "iphone-duo",
+  "interval_seconds": 120,
+
+  "notify": {
+    "ntfy_topic": "CHANGE-ME-to-your-ntfy-topic",
+    "desktop": true
+  },
+
+  "parts": [
+    "MK1E4LL/A", "MK1F4LL/A",
+    "MK1G4LL/A", "MK1H4LL/A",
+    "MK1J4LL/A", "MK1L4LL/A",
+    "MK1Q4LL/A", "MK1R4LL/A"
+  ],
+
+  "watches": [
+    {
+      "name": "LA Westside & Central",
+      "location": "90036",
+      "stores": ["Grove", "Beverly Center", "Century City", "Tower Theatre", "Third Street Promenade"]
+    },
+    {
+      "name": "LA Valley, Glendale & Pasadena",
+      "location": "91403",
+      "stores": ["Sherman Oaks", "Topanga", "Northridge", "Glendale Galleria", "Americana", "Pasadena", "Valencia"]
+    },
+    {
+      "name": "LA South Bay & Cerritos",
+      "location": "90503",
+      "stores": ["Del Amo", "Manhattan Village", "Los Cerritos"]
+    }
+  ]
+}
