@@ -1,5 +1,6 @@
 # Put this file at .github/workflows/check.yml in your repo.
-# Each run checks Apple once a minute for ~5 hours 40 minutes. GitHub tries to start a
+# Each run (scheduled, or started with Run workflow) checks Apple once a minute
+# for ~5 hours 40 minutes. GitHub tries to start a
 # run every 5 minutes; if one is already going, the next waits and takes over
 # as soon as it ends, so checking continues even when GitHub skips schedules.
 # Keep the repo PUBLIC: public repos get unlimited free Actions minutes.
@@ -15,10 +16,10 @@ on:
         type: boolean
         default: false
 
-# One scheduled checker at a time; manual runs get their own lane so they
-# start right away instead of waiting behind a long check.
+# Only one long checker at a time (scheduled or started by hand). Test alerts
+# get their own lane so they start right away.
 concurrency:
-  group: duo-stock-check-${{ github.event_name }}
+  group: ${{ inputs.test_alert && 'duo-test-alert' || 'duo-stock-check' }}
   cancel-in-progress: false
 
 jobs:
@@ -42,17 +43,11 @@ jobs:
       - run: pip install curl_cffi
 
       - name: Check Apple Store pickup (every minute for ~5h40m)
-        if: ${{ github.event_name == 'schedule' }}
+        if: ${{ !inputs.test_alert }}
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
           STOP_AFTER_MINUTES: "340"
         run: python3 duo_tracker.py check 100000 60
-
-      - name: Quick check (manual run)
-        if: ${{ github.event_name == 'workflow_dispatch' && !inputs.test_alert }}
-        env:
-          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-        run: python3 duo_tracker.py check
 
       - name: Test in-stock alert (real check, pretends first store has stock)
         if: ${{ inputs.test_alert }}
