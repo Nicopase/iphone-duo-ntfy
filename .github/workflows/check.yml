@@ -1,5 +1,7 @@
 # Put this file at .github/workflows/check.yml in your repo.
-# Runs the tracker free on GitHub every ~5 minutes — no computer needed.
+# GitHub starts this about every 5 minutes; each run checks Apple 4 times,
+# 1 minute apart, so you get roughly once-a-minute coverage.
+# Keep the repo PUBLIC: public repos get unlimited free Actions minutes.
 name: Duo stock check
 
 on:
@@ -7,9 +9,15 @@ on:
     - cron: "*/5 * * * *"   # GitHub may delay runs a few minutes at busy times
   workflow_dispatch: {}      # lets you tap "Run workflow" manually
 
+# Never run two checks at once.
+concurrency:
+  group: duo-stock-check
+  cancel-in-progress: false
+
 jobs:
   check:
     runs-on: ubuntu-latest
+    timeout-minutes: 8
     steps:
       - uses: actions/checkout@v4
 
@@ -25,7 +33,7 @@ jobs:
           python-version: "3.12"
       - run: pip install curl_cffi
 
-      - name: Check Apple Store pickup
+      - name: Check Apple Store pickup (4 times, 1 minute apart)
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
-        run: python3 duo_tracker.py check
+        run: python3 duo_tracker.py check 4 60
