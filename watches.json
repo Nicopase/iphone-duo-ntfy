@@ -7,14 +7,7 @@
     "ntfy_topic": "",
     "desktop": true
   },
-
-  "parts": [
-    "MK1E4LL/A", "MK1F4LL/A",
-    "MK1G4LL/A", "MK1H4LL/A",
-    "MK1J4LL/A", "MK1L4LL/A",
-    "MK1Q4LL/A", "MK1R4LL/A"
-  ],
-
+  "parts": ["MK1E4LL/A", "MK1F4LL/A"],
   "watches": [
     {
       "name": "LA Westside & Central",
